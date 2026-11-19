@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Refine GitHub",
+  "version": "1.0.0",
+  "description": "GitHub Issue, Wiki, Pull Request를 넓게 보고, 집중해서 읽고, 본문 글자 크기를 조절합니다.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "optional_host_permissions": ["https://*/*"],
+  "background": { "service_worker": "background.js" },
+  "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
+  "action": {
+    "default_title": "Refine GitHub · 읽기 좋은 GitHub",
+    "default_popup": "popup.html",
+    "default_icon": { "16": "icons/16.png", "48": "icons/48.png" }
+  },
+  "content_scripts": [{
+    "matches": ["https://github.com/*"],
+    "js": ["content.js"],
+    "css": ["content.css"],
+    "run_at": "document_idle"
+  }]
+}

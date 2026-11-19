@@ -1,0 +1,52 @@
+/* Repository pages use both legacy containers and Primer's React page layouts. */
+html.refine-capped {
+  --refine-layout-limit: 1600px;
+  --refine-issue-gutter: 16px;
+}
+
+html.refine-wide main :is(.container-xl, .container-lg),
+html.refine-wide #repo-content-pjax-container > :is(.container-xl, .container-lg),
+html.refine-wide main [data-width="xlarge"],
+html.refine-wide [data-testid="issue-artifacts-panel-layout"] [class^="contentContainer__"],
+html.refine-wide [data-component="SplitPageLayout.Content"]:has(.pull-discussion-timeline),
+html.refine-wide [data-component="SplitPageLayout.Content"] > [data-width]:has(.pull-discussion-timeline) {
+  max-width: var(--refine-layout-limit, none) !important;
+}
+
+/* Below the native width limit, reclaim space from the issue page gutters. */
+html.refine-wide [data-testid="issue-artifacts-panel-layout"] [class^="contentContainer__"],
+html.refine-wide [data-component="PageLayout.Content"]:has([data-testid="issues-list-surface"]) {
+  padding-inline: var(--refine-issue-gutter, 8px) !important;
+}
+
+@media (min-width: 1012px) {
+  html.refine-wide div:has(> [data-testid="issue-viewer-metadata-container"]) {
+    column-gap: 12px !important;
+  }
+
+  html.refine-wide [data-testid="issue-viewer-metadata-container"] {
+    max-width: 232px !important;
+  }
+}
+
+html.refine-focus :is(.discussion-sidebar, #wiki-rightbar, .wiki-rightbar, .Layout-sidebar),
+html.refine-focus [data-testid="issue-viewer-metadata-container"],
+html.refine-focus div:has(> #pr-conversation-sidebar) {
+  display: none !important;
+}
+
+html.refine-focus .Layout:has(> .Layout-sidebar) {
+  --Layout-sidebar-width: 0px;
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+html.refine-focus :is(.discussion-timeline, #wiki-body),
+html.refine-focus div:has(> [data-testid="issue-viewer-issue-container"]) {
+  width: 100% !important;
+  float: none !important;
+}
+
+html.refine-active .markdown-body {
+  font-size: var(--refine-font-size, 16px) !important;
+  line-height: 1.75 !important;
+}

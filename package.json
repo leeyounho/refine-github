@@ -1,0 +1,20 @@
+{
+  "name": "refine-github",
+  "version": "1.0.0",
+  "description": "Width, focus mode, and body font size for GitHub Issues, Wiki, and Pull Requests.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && playwright test",
+    "test:live": "npm run build && node scripts/live-check.mjs",
+    "verify": "npm run typecheck && npm test",
+    "package": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/package-extension.ps1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/chrome": "^0.3.7",
+    "esbuild": "^0.28.2",
+    "typescript": "^6.0.3"
+  },
+  "private": true
+}
