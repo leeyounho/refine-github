@@ -6,7 +6,7 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $releaseDir = Join-Path $projectRoot 'release'
 $packageFiles = @(
     'manifest.json', 'background.js', 'content.js', 'content.css',
-    'popup.html', 'popup.js', 'INSTALL.txt',
+    'popup.html', 'options.html', 'popup.js', 'INSTALL.txt',
     'icons/16.png', 'icons/48.png', 'icons/128.png', 'icons/300.png'
 )
 

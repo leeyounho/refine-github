@@ -1,13 +1,13 @@
 import css from './popup.css';
 import { loadSettings, resetSettings, settingKeys, type Settings } from './model';
-import { brand, el, settingsUI } from './ui';
-import { grantedHosts, hostPattern, publicHost } from './sites';
+import { brand, el, optionsUI, settingsUI, settingSwitch } from './ui';
+import { grantedHosts, hostPattern, publicHost, sitesKey } from './sites';
 
 const style = el('style'); style.textContent = css; document.head.append(style);
 const root = document.getElementById('app')!;
+const isOptions = document.body.classList.contains('options');
 const status = el('p', 'status'); status.setAttribute('role', 'status'); status.hidden = true;
-function theme(): void { document.body.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
-theme(); matchMedia('(prefers-color-scheme: dark)').addEventListener('change', theme);
+root.addEventListener('change', () => { status.hidden = true; }, { capture: true });
 async function currentSite() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.url?.startsWith('https://')) return;
@@ -51,10 +51,11 @@ function siteControl({ host, enabled }: Site): HTMLElement {
 
 function render(settings: Settings, site?: Site): void {
   const header = el('header', 'header');
-  const reset = el('button', 'reset', 'Reset');
+  const reset = el('button', 'reset reset-icon');
   reset.type = 'button';
   reset.name = 'reset';
-  reset.title = 'Reset all settings to defaults';
+  reset.setAttribute('aria-label', 'Reset');
+  reset.title = 'Reset settings';
   reset.addEventListener('click', async () => {
     status.hidden = true;
     try {
@@ -65,24 +66,50 @@ function render(settings: Settings, site?: Site): void {
     }
   });
   header.append(brand());
-  if (!site || site.enabled) header.append(reset);
   const content = el('div', 'content');
-  if (!site || site.enabled) {
-    content.append(settingsUI(settings, () => { status.textContent = 'Could not save settings. Try again.'; status.hidden = false; }));
+  const footer = el('footer', 'footer');
+  const onError = () => { status.textContent = 'Could not save settings. Try again.'; status.hidden = false; };
+  if (isOptions) {
+    content.append(optionsUI(settings, onError));
+    reset.title = 'Reset all reading settings';
+    reset.setAttribute('aria-label', reset.title);
+    footer.append(reset);
+  } else {
+    const options = el('a', 'options-icon');
+    options.title = 'Page options';
+    options.setAttribute('aria-label', options.title);
+    options.href = chrome.runtime.getURL('options.html');
+    options.target = '_blank';
+    options.addEventListener('click', event => {
+      event.preventDefault();
+      void chrome.runtime.openOptionsPage().catch(onError);
+    });
+    content.append(settingsUI(settings, onError));
+    const actions = el('div', 'header-actions');
+    actions.append(options, reset, settingSwitch('enabled', settings.enabled, onError));
+    header.append(actions);
   }
   if (site) content.append(siteControl(site));
+  if (isOptions) content.append(footer);
   content.append(status);
   root.replaceChildren(header, content);
 }
+let latestLoad = 0;
 async function load(): Promise<void> {
+  const request = ++latestLoad;
   try {
-    const [settings, site] = await Promise.all([loadSettings(), currentSite()]);
-    const name = document.activeElement?.getAttribute('name');
+    const [settings, site] = await Promise.all([loadSettings(), isOptions ? undefined : currentSite()]);
+    if (request !== latestLoad) return;
+    const focused = document.activeElement;
+    const name = focused?.getAttribute('name');
     render(settings, site);
-    if (name) [...root.querySelectorAll<HTMLElement>('[name]')].find(node => node.getAttribute('name') === name)?.focus();
-  } catch { root.replaceChildren(el('p', 'status', 'Could not load settings. Reopen the extension.')); }
+    if (focused?.id) document.getElementById(focused.id)?.focus();
+    else if (name) [...root.querySelectorAll<HTMLElement>('[name]')].find(node => node.getAttribute('name') === name)?.focus();
+  } catch {
+    if (request === latestLoad) root.replaceChildren(el('p', 'status', 'Could not load settings. Reopen the extension.'));
+  }
 }
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local' && settingKeys.some(key => key in changes)) void load();
+  if (area === 'local' && (sitesKey in changes || settingKeys.some(key => key in changes))) void load();
 });
 void load();

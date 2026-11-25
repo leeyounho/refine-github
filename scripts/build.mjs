@@ -12,6 +12,7 @@ await Promise.all([
   copyFile('manifest.json', 'dist/manifest.json'),
   copyFile('src/content.css', 'dist/content.css'),
   copyFile('src/popup.html', 'dist/popup.html'),
+  copyFile('src/options.html', 'dist/options.html'),
   copyFile('docs/INSTALL.ko.txt', 'dist/INSTALL.txt'),
 ]);
 

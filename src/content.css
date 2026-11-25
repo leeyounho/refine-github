@@ -1,30 +1,87 @@
 /* Repository pages use both legacy containers and Primer's React page layouts. */
+/* Size the bordered README panel with its article, including the gutters and border. */
+html.refine-document.refine-capped :is(#repo-content-pjax-container, #repos-split-pane-content) :is(
+  div:not(.refine-overview-readme):has(> .js-snippet-clipboard-copy-unpositioned > article.markdown-body),
+  div:has(> section > .js-snippet-clipboard-copy-unpositioned > article.markdown-body)
+) {
+  max-width: calc(var(--refine-layout-limit) + 2 * var(--refine-issue-gutter) + 2px) !important;
+  margin-inline: auto !important;
+  width: 100%;
+}
+html.refine-document.refine-wide :is(#repo-content-pjax-container, #repos-split-pane-content) :is([data-component="SplitPageLayout"].container-xl, [data-width="large"]):has(article.markdown-body):not(:has(#folders-and-files)) {
+  max-width: none !important;
+}
+/* Center the overview README in the repository pane without resizing the file list. */
+html.refine-document.refine-wide .refine-overview-readme {
+  --refine-panel-width: min(var(--refine-pane-width), calc(var(--refine-layout-limit, var(--refine-pane-width)) + 2 * var(--refine-issue-gutter, 8px) + 2px));
+  width: var(--refine-panel-width);
+  flex-shrink: 0;
+  max-width: none !important;
+  position: relative;
+  margin-inline: 0 !important;
+  left: var(--refine-pane-center);
+  translate: -50% 0;
+  margin-block-start: var(--refine-sidebar-clearance, 0px);
+}
+html.refine-document.refine-wide :is(#repo-content-pjax-container, #repos-split-pane-content) .js-snippet-clipboard-copy-unpositioned:has(> article.markdown-body) {
+  padding-inline: var(--refine-issue-gutter, 8px) !important;
+}
+html.refine-document.refine-wide :is(#repo-content-pjax-container, #repos-split-pane-content) article.markdown-body {
+  max-width: var(--refine-layout-limit, none) !important;
+  margin-inline: auto !important;
+  width: 100% !important;
+}
+html.refine-diff.refine-wide #diff-content-parent {
+  max-width: var(--refine-layout-limit, none) !important;
+  margin-inline: auto;
+}
 html.refine-capped {
   --refine-layout-limit: 1600px;
   --refine-issue-gutter: 16px;
 }
 
-html.refine-wide main :is(.container-xl, .container-lg),
-html.refine-wide #repo-content-pjax-container > :is(.container-xl, .container-lg),
-html.refine-wide main [data-width="xlarge"],
-html.refine-wide [data-testid="issue-artifacts-panel-layout"] [class^="contentContainer__"],
-html.refine-wide [data-component="SplitPageLayout.Content"]:has(.pull-discussion-timeline),
-html.refine-wide [data-component="SplitPageLayout.Content"] > [data-width]:has(.pull-discussion-timeline) {
+html.refine-wide:not(.refine-document) main :is(.container-xl, .container-lg),
+html.refine-wide:not(.refine-document) #repo-content-pjax-container > :is(.container-xl, .container-lg),
+html.refine-wide:not(.refine-document) main [data-width="xlarge"],
+html.refine-wide:not(.refine-document) [data-testid="issue-artifacts-panel-layout"] [class^="contentContainer__"],
+html.refine-wide:not(.refine-document) [data-component="SplitPageLayout.Content"]:has(.pull-discussion-timeline),
+html.refine-wide:not(.refine-document) [data-component="SplitPageLayout.Content"] > [data-width]:has(.pull-discussion-timeline) {
   max-width: var(--refine-layout-limit, none) !important;
 }
 
+/* Apply the page limit around the entire editor, including its preview column. */
+html.refine-editor-width :is(main, [role="main"], #repo-content-pjax-container, #repos-split-pane-content)
+  :is(.container-sm, .container-md, .container-lg, .container-xl, [data-width], form, #wiki-wrapper, #gollum-editor):has(textarea, .cm-editor, .CodeMirror),
+html.refine-editor-width :is(main, [role="main"]):has(textarea, .cm-editor, .CodeMirror) {
+  max-width: var(--refine-layout-limit, none) !important;
+  box-sizing: border-box;
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* Give extra horizontal space to the thread instead of growing its metadata column. */
+@media (min-width: 768px) {
+  html.refine-wide #discussion_bucket > #partial-discussion-sidebar {
+    width: 240px !important;
+  }
+  html.refine-wide #discussion_bucket > .col-md-9 {
+    flex: 1 1 0% !important;
+    min-width: 0;
+  }
+}
+
 /* Below the native width limit, reclaim space from the issue page gutters. */
-html.refine-wide [data-testid="issue-artifacts-panel-layout"] [class^="contentContainer__"],
-html.refine-wide [data-component="PageLayout.Content"]:has([data-testid="issues-list-surface"]) {
+html.refine-wide:not(.refine-document) [data-testid="issue-artifacts-panel-layout"] [class^="contentContainer__"],
+html.refine-wide:not(.refine-document) [data-component="PageLayout.Content"]:has([data-testid="issues-list-surface"]) {
   padding-inline: var(--refine-issue-gutter, 8px) !important;
 }
 
 @media (min-width: 1012px) {
-  html.refine-wide div:has(> [data-testid="issue-viewer-metadata-container"]) {
+  html.refine-wide:not(.refine-document) div:has(> [data-testid="issue-viewer-metadata-container"]) {
     column-gap: 12px !important;
   }
 
-  html.refine-wide [data-testid="issue-viewer-metadata-container"] {
+  html.refine-wide:not(.refine-document) [data-testid="issue-viewer-metadata-container"] {
     max-width: 232px !important;
   }
 }
@@ -46,7 +103,47 @@ html.refine-focus div:has(> [data-testid="issue-viewer-issue-container"]) {
   float: none !important;
 }
 
-html.refine-active .markdown-body {
-  font-size: var(--refine-font-size, 16px) !important;
+html.refine-custom-font:not(.refine-diff, .refine-document) .markdown-body,
+html.refine-custom-font.refine-document :is(#repo-content-pjax-container, #repos-split-pane-content) article.markdown-body {
+  font-size: var(--refine-font-size) !important;
   line-height: 1.75 !important;
+}
+
+html.refine-editor-height :is(
+  textarea.js-comment-field, textarea.comment-form-textarea, textarea[name="body"], textarea[name$="[body]"],
+  textarea[data-testid="markdown-editor-textarea"], textarea[aria-label="Markdown value"],
+  textarea#issue-body, .js-write-bucket textarea:not(.CodeMirror textarea, .cm-editor textarea),
+  textarea#wiki-body, textarea#gollum-editor-body,
+  textarea#code-editor, .cm-editor:has(.cm-content[contenteditable="true"]), .CodeMirror:has(textarea)
+) {
+  box-sizing: border-box;
+  height: var(--refine-editor-height) !important;
+  min-height: var(--refine-editor-height) !important;
+  max-height: var(--refine-editor-height) !important;
+  overflow-y: auto;
+}
+.refine-split-host {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.refine-split-host > * { grid-column: 1 / -1; }
+.refine-split-host > .refine-split-source { grid-column: 1; box-sizing: border-box; min-width: 0; width: 100%; }
+.refine-split-host > .refine-split-preview {
+  grid-column: 2;
+  contain: size;
+  overflow-anchor: none;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  padding: 16px;
+  overflow-wrap: anywhere;
+  border-inline-start: 1px solid var(--borderColor-default, #80808070);
+}
+.refine-split-tab { display: none !important; }
+.refine-split-preview[data-local-preview]::after {
+  content: attr(data-local-preview);
+  display: block;
+  margin-block-start: 12px;
+  color: var(--fgColor-muted, #656d76);
+  font-size: 12px;
 }
